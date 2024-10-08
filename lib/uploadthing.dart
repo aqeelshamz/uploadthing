@@ -89,7 +89,7 @@ class UploadThing {
         if (response.statusCode == 204) {
           uploadedFiles++;
           uploadedFilesData.add({
-            "url": data["url"],
+            "url": data["fileUrl"],
             "fileName": data["fileName"],
             "size": file.lengthSync(),
             "type": lookupMimeType(file.path)!

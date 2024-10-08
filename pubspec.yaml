@@ -1,7 +1,7 @@
 name: uploadthing
-description: "A new Flutter package project."
-version: 0.0.1
-homepage:
+description: An unofficial Dart/Flutter SDK for the UploadThing API.
+version: 1.0.0
+homepage: https://github.com/aqeelshamz/uploadthing
 
 environment:
   sdk: ^3.5.3
