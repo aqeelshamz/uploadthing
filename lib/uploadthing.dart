@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
-
-const String apiUrl = "https://api.uploadthing.com/v6";
+import 'package:uploadthing/classes/UploadThingFile.dart';
+import 'package:uploadthing/utils/utils.dart';
 
 /// A class to handle file uploads to the UploadThing API.
 class UploadThing {
@@ -32,7 +32,8 @@ class UploadThing {
   /// accordingly.
   ///
   /// Throws an [Exception] if the upload fails.
-  Future<void> uploadFile(List<File> files) async {
+  /// Returns `true` if the upload is successful.
+  Future<bool> uploadFile(List<File> files) async {
     totalFiles = files.length;
     List<Map<String, dynamic>> filesData = [];
 
@@ -101,5 +102,55 @@ class UploadThing {
     } else {
       throw Exception("Failed to upload file");
     }
+
+    return true;
   }
+
+  /// Lists the files uploaded to the UploadThing API.
+  ///
+  /// This method sends a request to the UploadThing API to retrieve a list of files.
+  /// The [limit] parameter specifies the maximum number of files to retrieve (default is 500).
+  /// The [offset] parameter specifies the number of files to skip before starting to collect the result set (default is 0).
+  ///
+  /// Throws an [Exception] if the request fails.
+  /// Returns a [Future] that completes with a list of [UploadThingFile] objects.
+  ///
+  /// Example:
+  /// ```dart
+  /// List<UploadThingFile> files = await uploadThing.listFiles(limit: 100, offset: 0);
+  /// print(files);
+  /// ```
+  Future<List<UploadThingFile>> listFiles(
+      {int limit = 500, int offset = 0}) async {
+    var url = Uri.parse("$apiUrl/listFiles");
+    Map<String, String> headers = {
+      "X-Uploadthing-Api-Key": _apiKey,
+      "Content-Type": "application/json"
+    };
+
+    var request = await http.post(url,
+        headers: headers, body: jsonEncode({"limit": limit, "offset": offset}));
+
+    if (request.statusCode == 200) {
+      Map<String, dynamic> response = jsonDecode(request.body);
+      return List<UploadThingFile>.from(
+          response["files"].map((x) => UploadThingFile.fromJson(x)));
+    } else {
+      throw Exception("Failed to list files");
+    }
+  }
+}
+
+/// Returns the URL for a file given its [key].
+///
+/// The [key] is a unique identifier for the file.
+/// This function constructs the URL using the base URL and the provided [key].
+///
+/// Example:
+/// ```dart
+/// String url = getFileUrl("exampleKey");
+/// print(url); // Output: https://utfs.io/f/exampleKey
+/// ```
+String getFileUrl(String key) {
+  return "https://utfs.io/f/$key";
 }
