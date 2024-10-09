@@ -1,7 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:uploadthing/uploadthing.dart';
 
 class UploadButton extends StatefulWidget {
-  const UploadButton({super.key});
+  final UploadThing instance;
+  const UploadButton({super.key, required this.instance});
 
   @override
   State<UploadButton> createState() => _UploadButtonState();
@@ -10,7 +12,9 @@ class UploadButton extends StatefulWidget {
 class _UploadButtonState extends State<UploadButton> {
   @override
   Widget build(BuildContext context) {
-    
-    return const Placeholder();
+    return TextButton(
+      onPressed: () {},
+      child: const Text('Upload'),
+    );
   }
 }

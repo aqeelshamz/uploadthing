@@ -184,6 +184,7 @@ class UploadThing {
   ///  {"fileKey": "exampleKey1", "newName": "newName1.jpg"},
   ///  {"fileKey": "exampleKey2", "newName": "newName2.jpg"}
   /// ]);
+  /// ```
   Future<bool> renameFiles(List<Map<String, String>> updates) async {
     var url = Uri.parse("$apiUrlv6/renameFiles");
     Map<String, String> headers = {
