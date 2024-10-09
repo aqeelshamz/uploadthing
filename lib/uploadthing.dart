@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:uploadthing/classes/UploadThingFile.dart';
+import 'package:uploadthing/classes/appInfo.dart';
+import 'package:uploadthing/classes/usageInfo.dart';
 import 'package:uploadthing/utils/utils.dart';
 
 /// A class to handle file uploads to the UploadThing API.
@@ -33,7 +35,7 @@ class UploadThing {
   ///
   /// Throws an [Exception] if the upload fails.
   /// Returns `true` if the upload is successful.
-  Future<bool> uploadFile(List<File> files) async {
+  Future<bool> uploadFiles(List<File> files) async {
     totalFiles = files.length;
     List<Map<String, dynamic>> filesData = [];
 
@@ -46,7 +48,7 @@ class UploadThing {
       filesData.add({"name": fileName, "size": fileSize, "type": mimeType});
     }
 
-    var url = Uri.parse("$apiUrl/uploadFiles");
+    var url = Uri.parse("$apiUrlv6/uploadFiles");
     Map<String, String> headers = {
       "X-Uploadthing-Api-Key": _apiKey,
       "Content-Type": "application/json"
@@ -122,7 +124,7 @@ class UploadThing {
   /// ```
   Future<List<UploadThingFile>> listFiles(
       {int limit = 500, int offset = 0}) async {
-    var url = Uri.parse("$apiUrl/listFiles");
+    var url = Uri.parse("$apiUrlv6/listFiles");
     Map<String, String> headers = {
       "X-Uploadthing-Api-Key": _apiKey,
       "Content-Type": "application/json"
@@ -139,18 +141,180 @@ class UploadThing {
       throw Exception("Failed to list files");
     }
   }
-}
 
-/// Returns the URL for a file given its [key].
-///
-/// The [key] is a unique identifier for the file.
-/// This function constructs the URL using the base URL and the provided [key].
-///
-/// Example:
-/// ```dart
-/// String url = getFileUrl("exampleKey");
-/// print(url); // Output: https://utfs.io/f/exampleKey
-/// ```
-String getFileUrl(String key) {
-  return "https://utfs.io/f/$key";
+  /// Renames a file on the UploadThing API.
+  /// The [fileKey] is the unique identifier of the file to be renamed.
+  /// The [newName] is the new name for the file.
+  /// Throws an [Exception] if the request fails.
+  ///  Returns a [Future] that completes with a boolean value indicating the success of the operation.
+  /// Example:
+  /// ```dart
+  /// bool response = await uploadThing.renameFile("exampleKey", "newName.jpg");
+  /// print(response);
+  /// ```
+  Future<bool> renameFile(String fileKey, String newName) async {
+    var url = Uri.parse("$apiUrlv6/renameFiles");
+    Map<String, String> headers = {
+      "X-Uploadthing-Api-Key": _apiKey,
+      "Content-Type": "application/json"
+    };
+
+    var request = await http.post(url,
+        headers: headers,
+        body: jsonEncode({
+          "updates": [
+            {"fileKey": fileKey, "newName": newName}
+          ]
+        }));
+
+    if (request.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception("Failed to rename file");
+    }
+  }
+
+  /// Rename multiple files on the UploadThing API.
+  /// The [updates] is a list of maps where each map contains the [fileKey] and the [newName].
+  /// Throws an [Exception] if the request fails.
+  /// Returns a [Future] that completes with a boolean value indicating the success of the operation.
+  /// Example:
+  /// ```dart
+  /// bool response = await uploadThing.renameFiles([
+  ///  {"fileKey": "exampleKey1", "newName": "newName1.jpg"},
+  ///  {"fileKey": "exampleKey2", "newName": "newName2.jpg"}
+  /// ]);
+  Future<bool> renameFiles(List<Map<String, String>> updates) async {
+    var url = Uri.parse("$apiUrlv6/renameFiles");
+    Map<String, String> headers = {
+      "X-Uploadthing-Api-Key": _apiKey,
+      "Content-Type": "application/json"
+    };
+
+    var request = await http.post(url,
+        headers: headers, body: jsonEncode({"updates": updates}));
+
+    if (request.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception("Failed to rename files");
+    }
+  }
+
+  /// Deletes a file from the UploadThing API.
+  /// The [fileKey] is the unique identifier of the file to be deleted.
+  /// Throws an [Exception] if the request fails.
+  /// Returns a [Future] that completes with a boolean value indicating the success of the operation.
+  /// Example:
+  /// ```dart
+  /// bool response = await uploadThing.deleteFile("exampleKey");
+  /// print(response);
+  /// ```
+  Future<bool> deleteFile(String fileKey) async {
+    var url = Uri.parse("$apiUrlv6/deleteFiles");
+    Map<String, String> headers = {
+      "X-Uploadthing-Api-Key": _apiKey,
+      "Content-Type": "application/json"
+    };
+
+    var request = await http.post(url,
+        headers: headers,
+        body: jsonEncode({
+          "fileKeys": [fileKey]
+        }));
+
+    if (request.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception("Failed to delete file");
+    }
+  }
+
+  /// Deletes multiple files from the UploadThing API.
+  /// The [fileKeys] is a list of unique identifiers of the files to be deleted.
+  /// Throws an [Exception] if the request fails.
+  /// Returns a [Future] that completes with a boolean value indicating the success of the operation.
+  /// Example:
+  /// ```dart
+  /// bool response = await uploadThing.deleteFiles(["exampleKey1", "exampleKey2"]);
+  /// print(response);
+  /// ```
+  Future<bool> deleteFiles(List<String> fileKeys) async {
+    var url = Uri.parse("$apiUrlv6/deleteFiles");
+    Map<String, String> headers = {
+      "X-Uploadthing-Api-Key": _apiKey,
+      "Content-Type": "application/json"
+    };
+
+    var request = await http.post(url,
+        headers: headers, body: jsonEncode({"fileKeys": fileKeys}));
+    if (request.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception("Failed to delete files");
+    }
+  }
+
+  /// Gets information about the app from the UploadThing API.
+  /// Throws an [Exception] if the request fails.
+  /// Returns a [Future] that completes with a map containing the app information.
+  /// Example:
+  /// ```dart
+  /// Map appInfo = await uploadThing.getAppInfo();
+  /// print(appInfo);
+  /// ```
+  Future<AppInfo> getAppInfo() async {
+    var url = Uri.parse("$apiUrlv7/getAppInfo");
+    Map<String, String> headers = {
+      "X-Uploadthing-Api-Key": _apiKey,
+      "Content-Type": "application/json"
+    };
+
+    var request = await http.post(url, headers: headers, body: jsonEncode({}));
+    if (request.statusCode == 200) {
+      return AppInfo.fromJson(jsonDecode(request.body));
+    } else {
+      throw Exception("Failed to get app info");
+    }
+  }
+
+  /// Returns the URL for a file given its [key].
+  ///
+  /// The [key] is a unique identifier for the file.
+  /// This function constructs the URL using the base URL and the provided [key].
+  ///
+  /// Example:
+  /// ```dart
+  /// String url = getFileUrl("exampleKey");
+  /// print(url); // Output: https://utfs.io/f/exampleKey
+  /// ```
+  String getFileUrl(String key) {
+    return "https://utfs.io/f/$key";
+  }
+
+  /// Gets information about the usage of the app from the UploadThing API.
+  /// Throws an [Exception] if the request fails.
+  /// Returns a [Future] that completes with a [UsageInfo] object.
+  /// Example:
+  /// ```dart
+  /// UsageInfo usageInfo = await uploadThing.getUsageInfo();
+  /// print(usageInfo);
+  /// ```
+  Future<UsageInfo> getUsageInfo() {
+    var url = Uri.parse("$apiUrlv6/getUsageInfo");
+    Map<String, String> headers = {
+      "X-Uploadthing-Api-Key": _apiKey,
+      "Content-Type": "application/json"
+    };
+
+    var request = http.post(url, headers: headers, body: jsonEncode({}));
+
+    return request.then((response) {
+      if (response.statusCode == 200) {
+        return UsageInfo.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception("Failed to get usage info");
+      }
+    });
+  }
 }

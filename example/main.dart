@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:uploadthing/uploadthing.dart';
 
@@ -12,18 +11,9 @@ void main() async {
     File('path/to/your/file2.txt')
   ];
 
-  // Start a timer to print the total and uploaded files every second
-  Timer.periodic(const Duration(seconds: 1), (timer) {
-    print(
-        "Total Files: ${uploadThing.totalFiles}, Uploaded Files: ${uploadThing.uploadedFiles}");
-    if (uploadThing.uploadedFiles == uploadThing.totalFiles) {
-      timer.cancel(); // Stop the timer when all files are uploaded
-    }
-  });
-
   try {
     // Upload the files
-    await uploadThing.uploadFile(files);
+    await uploadThing.uploadFiles(files);
     print('Upload complete');
     print('Uploaded Files Data: ${uploadThing.uploadedFilesData}');
   } catch (e) {
