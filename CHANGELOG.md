@@ -1,6 +1,7 @@
 ## 1.0.2
 
-* New functions added - `listFiles`, `renameFile`, `renameFiles`, `renameFile`
+* New functions added - `listFiles`, `renameFile`, `renameFiles`, `deleteFile`, `deleteFiles`, `getAppInfo`, `getUsageInfo`
+* New class added - `AppInfo`, `UsageInfo`, `UploadThingFile`
 
 ## 1.0.1
 
