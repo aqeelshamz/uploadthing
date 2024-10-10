@@ -5,10 +5,116 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
-import 'package:uploadthing/classes/UploadThingFile.dart';
-import 'package:uploadthing/classes/appInfo.dart';
-import 'package:uploadthing/classes/usageInfo.dart';
 import 'package:uploadthing/utils/utils.dart';
+
+class AppInfo {
+  String appId;
+  String defaultACL;
+  bool allowACLOverride;
+
+  AppInfo(
+      {required this.appId,
+      required this.defaultACL,
+      required this.allowACLOverride});
+
+  factory AppInfo.fromJson(Map<String, dynamic> json) {
+    return AppInfo(
+      appId: json['appId'] ?? '',
+      defaultACL: json['defaultACL'] ?? '',
+      allowACLOverride: json['allowACLOverride'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'appId': appId,
+      'defaultACL': defaultACL,
+      'allowACLOverride': allowACLOverride,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'AppInfo{appId: $appId, defaultACL: $defaultACL, allowACLOverride: $allowACLOverride}';
+  }
+}
+
+class UploadThingFile {
+  String id;
+  String key;
+  String name;
+  String customId;
+  String status;
+
+  UploadThingFile(
+      {required this.id,
+      required this.key,
+      required this.name,
+      required this.customId,
+      required this.status});
+
+  factory UploadThingFile.fromJson(Map<String, dynamic> json) {
+    return UploadThingFile(
+      id: json['id'] ?? '',
+      key: json['key'] ?? '',
+      name: json['name'] ?? '',
+      customId: json['customId'] ?? '',
+      status: json['status'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'key': key,
+      'name': name,
+      'customId': customId,
+      'status': status,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'UploadThingFile{id: $id, key: $key, name: $name, customId: $customId, status: $status}';
+  }
+}
+
+class UsageInfo {
+  int totalBytes;
+  int appTotalBytes;
+  int filesUploaded;
+  int limitBytes;
+
+  UsageInfo({
+    required this.totalBytes,
+    required this.appTotalBytes,
+    required this.filesUploaded,
+    required this.limitBytes,
+  });
+
+  factory UsageInfo.fromJson(Map<String, dynamic> json) {
+    return UsageInfo(
+      totalBytes: json['totalBytes'] ?? 0,
+      appTotalBytes: json['appTotalBytes'] ?? 0,
+      filesUploaded: json['filesUploaded'] ?? 0,
+      limitBytes: json['limitBytes'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'totalBytes': totalBytes,
+      'appTotalBytes': appTotalBytes,
+      'filesUploaded': filesUploaded,
+      'limitBytes': limitBytes,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'UsageInfo{totalBytes: $totalBytes, appTotalBytes: $appTotalBytes, filesUploaded: $filesUploaded, limitBytes: $limitBytes}';
+  }
+}
 
 /// A class to handle file uploads to the UploadThing API.
 class UploadThing {
