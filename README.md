@@ -1,3 +1,4 @@
+[![pub package](https://img.shields.io/pub/v/uploadthing.svg)](https://pub.dev/packages/uploadthing)
 
 # UploadThing Dart SDK
 
