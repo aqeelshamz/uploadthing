@@ -188,6 +188,8 @@ class UploadThing {
         request.fields["X-Amz-Signature"] = data["fields"]["X-Amz-Signature"];
         request.fields["X-Amz-Algorithm"] = data["fields"]["X-Amz-Algorithm"];
         request.fields["X-Amz-Credential"] = data["fields"]["X-Amz-Credential"];
+        request.fields["X-Amz-Security-Token"] =
+            data["fields"]["X-Amz-Security-Token"];
         request.fields["X-Amz-Date"] = data["fields"]["X-Amz-Date"];
         request.fields["Content-Type"] = lookupMimeType(file.path)!;
         request.fields["Content-Disposition"] =
