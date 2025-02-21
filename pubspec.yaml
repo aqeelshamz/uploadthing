@@ -1,6 +1,6 @@
 name: uploadthing
 description: An unofficial Dart/Flutter SDK for the UploadThing API.
-version: 1.0.3
+version: 1.0.4
 homepage: https://github.com/aqeelshamz/uploadthing
 
 environment:

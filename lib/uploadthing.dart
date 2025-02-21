@@ -12,10 +12,11 @@ class AppInfo {
   String defaultACL;
   bool allowACLOverride;
 
-  AppInfo(
-      {required this.appId,
-      required this.defaultACL,
-      required this.allowACLOverride});
+  AppInfo({
+    required this.appId,
+    required this.defaultACL,
+    required this.allowACLOverride,
+  });
 
   factory AppInfo.fromJson(Map<String, dynamic> json) {
     return AppInfo(
@@ -46,12 +47,13 @@ class UploadThingFile {
   String customId;
   String status;
 
-  UploadThingFile(
-      {required this.id,
-      required this.key,
-      required this.name,
-      required this.customId,
-      required this.status});
+  UploadThingFile({
+    required this.id,
+    required this.key,
+    required this.name,
+    required this.customId,
+    required this.status,
+  });
 
   factory UploadThingFile.fromJson(Map<String, dynamic> json) {
     return UploadThingFile(
@@ -175,25 +177,20 @@ class UploadThing {
       // Upload each file to the provided URLs
       for (Map data in response["data"]) {
         var request = http.MultipartRequest("POST", Uri.parse(data["url"]));
-        request.fields["acl"] = "public-read";
-        request.fields["bucket"] = data["fields"]["bucket"];
-        request.fields["key"] = data["fields"]["key"];
-        request.fields["Policy"] = data["fields"]["Policy"];
+
+        // Attach all fields provided in the response
+        data["fields"].forEach((key, value) {
+          request.fields[key] = value;
+        });
+
         File file = files
             .firstWhere((element) => element.path.contains(data["fileName"]));
-        request.files.add(http.MultipartFile(
-            "file", file.readAsBytes().asStream(), file.lengthSync(),
-            filename: data["fileName"],
-            contentType: MediaType.parse(lookupMimeType(file.path)!)));
-        request.fields["X-Amz-Signature"] = data["fields"]["X-Amz-Signature"];
-        request.fields["X-Amz-Algorithm"] = data["fields"]["X-Amz-Algorithm"];
-        request.fields["X-Amz-Credential"] = data["fields"]["X-Amz-Credential"];
-        request.fields["X-Amz-Security-Token"] =
-            data["fields"]["X-Amz-Security-Token"];
-        request.fields["X-Amz-Date"] = data["fields"]["X-Amz-Date"];
-        request.fields["Content-Type"] = lookupMimeType(file.path)!;
-        request.fields["Content-Disposition"] =
-            'inline; filename="${data["fileName"]}"; filename*=UTF-8\'\'${data["fileName"]}';
+        request.files.add(await http.MultipartFile.fromPath(
+          "file",
+          file.path,
+          contentType: MediaType.parse(
+              lookupMimeType(file.path) ?? 'application/octet-stream'),
+        ));
 
         var response = await request.send();
 
